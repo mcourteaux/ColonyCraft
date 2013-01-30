@@ -227,7 +227,7 @@ public class Player extends Entity
 
 		int r = -Mouse.getDX();
 		tilt += Mouse.getDY() * 0.01f;
-		angle += r * step * 0.5f;
+		angle += r * 0.5f;
 		tilt = MathHelper.clamp(tilt, -MathHelper.f_PI_div_2 + 0.0001f, MathHelper.f_PI_div_2 - 0.0001f);
 		camera.setDir(sin, MathHelper.tan(tilt), cos);
 	}
