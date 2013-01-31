@@ -22,7 +22,9 @@ varying float vFog;
 
 vec2 wave(vec2 vertex, float wave)
 {
-	return vec2(0.4 * sin(wave + vertex.x), 0.4 * cos(wave + vertex.y));
+	wave *= 0.2;
+	return 0.8 * vec2(smoothTriangle(vertex.x + 1.3 * vertex.y + wave + 0.5) - 0.5, smoothTriangle(1.6 * vertex.x + vertex.y + wave) - 0.5);
+	//return vec2(0.4 * sin(wave + vertex.x * 1.3), 0.4 * cos(wave + vertex.y * 1.3));
 }
 
 void main()

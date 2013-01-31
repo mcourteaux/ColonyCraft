@@ -41,6 +41,9 @@ public class Player extends Entity
 
 	private float angle;
 	private float tilt;
+	private float targetAngle;
+	private float targetTilt;
+	
 	private Vector3f velocity;
 	private Vector3f vec0;
 	private Vec3f vec1;
@@ -226,9 +229,14 @@ public class Player extends Entity
 		camera.setPos(transform.origin.x, transform.origin.y + EYE_HEIGHT - (HEIGHT * 0.5f), transform.origin.z);
 
 		int r = -Mouse.getDX();
-		tilt += Mouse.getDY() * 0.01f;
-		angle += r * 0.5f;
-		tilt = MathHelper.clamp(tilt, -MathHelper.f_PI_div_2 + 0.0001f, MathHelper.f_PI_div_2 - 0.0001f);
+		targetTilt += Mouse.getDY() * 0.01f;
+		targetAngle += r * 0.01f;
+		targetTilt = MathHelper.clamp(targetTilt, -MathHelper.f_PI_div_2 + 0.0001f, MathHelper.f_PI_div_2 - 0.0001f);
+		
+		/* Interpolate the tilt/angle */
+		tilt += (targetTilt - tilt) * 0.2f;
+		angle += (targetAngle - angle) * 0.2f;
+		
 		camera.setDir(sin, MathHelper.tan(tilt), cos);
 	}
 

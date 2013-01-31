@@ -11,3 +11,13 @@ float mixLight(vec2 l)
 	
 	return l.x * (1.0 - l.y) + (1.0 - l.x) * l.y + l.x * l.y;
 }
+
+float smoothCurve(float x)
+{
+	return -x * x * (2.0 * x - 3.0);
+}
+
+float smoothTriangle(float x)
+{
+	return smoothCurve(abs(fract(x + 0.5) * 2.0 - 1.0));
+}
