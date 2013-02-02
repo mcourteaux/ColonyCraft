@@ -1,6 +1,8 @@
 package com.colonycraft;
 
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.io.IOException;
 
 import org.lwjgl.LWJGLException;
@@ -35,8 +37,23 @@ public class ColonyCraft
 	{
 		try
 		{
-			setDisplayMode(1280, 800, true);
-			Display.setVSyncEnabled(true);
+			int w, h;
+			boolean fullscreen;
+			try
+			{
+				Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+				w = d.width;
+				h = d.height;
+				fullscreen = true;
+			} catch (Exception e)
+			{
+				w = 800;
+				h = 480;
+				fullscreen = false;
+			}
+			
+			setDisplayMode(w, h, fullscreen);
+			Display.setVSyncEnabled(false);
 			Display.create();
 		} catch (Exception e)
 		{
@@ -52,7 +69,7 @@ public class ColonyCraft
 			e.printStackTrace();
 		}
 		
-		framerateCap = 60;
+		framerateCap = 1000;
 		averangeFramerate = framerateCap;
 		frametimeMinMillis = (int) (1000 / framerateCap);
 		
