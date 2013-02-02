@@ -228,9 +228,8 @@ public class Player extends Entity
 
 		camera.setPos(transform.origin.x, transform.origin.y + EYE_HEIGHT - (HEIGHT * 0.5f), transform.origin.z);
 
-		int r = -Mouse.getDX();
 		targetTilt += Mouse.getDY() * 0.01f;
-		targetAngle += r * 0.01f;
+		targetAngle += -Mouse.getDX() * 0.01f;
 		targetTilt = MathHelper.clamp(targetTilt, -MathHelper.f_PI_div_2 + 0.0001f, MathHelper.f_PI_div_2 - 0.0001f);
 		
 		/* Interpolate the tilt/angle */
