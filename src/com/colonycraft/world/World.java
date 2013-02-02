@@ -142,7 +142,7 @@ public class World implements EnvironmentManagerCallbacks
 		localEnvironmentManager.manage(new Vec3f(activePlayer.getTransform().origin), viewingDistance, activePlayer.getCamera().getFrustum());
 		physicsManager.update();
 		sunligth += ColonyCraft.getIntance().getStep() * MathHelper.f_2PI * DAY_LENGTH_INV;
-		flicker += 0.02f;
+		flicker += ColonyCraft.getIntance().getStep();
 		time += ColonyCraft.getIntance().getStep();
 	}
 

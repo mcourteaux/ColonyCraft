@@ -234,8 +234,9 @@ public class Player extends Entity
 		targetTilt = MathHelper.clamp(targetTilt, -MathHelper.f_PI_div_2 + 0.0001f, MathHelper.f_PI_div_2 - 0.0001f);
 		
 		/* Interpolate the tilt/angle */
-		tilt += (targetTilt - tilt) * 0.2f;
-		angle += (targetAngle - angle) * 0.2f;
+		float factor = ColonyCraft.getIntance().getStep() * 5.0f;
+		tilt += (targetTilt - tilt) * factor;
+		angle += (targetAngle - angle) * factor;
 		
 		camera.setDir(sin, MathHelper.tan(tilt), cos);
 	}
