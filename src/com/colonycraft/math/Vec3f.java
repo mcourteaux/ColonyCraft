@@ -79,7 +79,7 @@ public class Vec3f
 		set(x - v.x, y - v.y, z - v.z);
 		return this;
 	}
-	
+
 	/**
 	 * Subtracts this vector by the passed vector.
 	 * 
@@ -118,7 +118,7 @@ public class Vec3f
 		set(x + v.x, y + v.y, z + v.z);
 		return this;
 	}
-	
+
 	/**
 	 * Performs a scalar product on this vector
 	 * 
@@ -300,7 +300,12 @@ public class Vec3f
 		return true;
 	}
 
-
-
+	public void relax(float d)
+	{
+		float invD = 1.0f / d;
+		x = MathHelper.round(x * invD) * d;
+		y = MathHelper.round(y * invD) * d;
+		z = MathHelper.round(z * invD) * d;
+	}
 
 }

@@ -7,6 +7,8 @@ import java.nio.IntBuffer;
 
 import org.lwjgl.opengl.GL15;
 
+import com.colonycraft.math.Vec3f;
+
 public class Mesh
 {
 
@@ -25,7 +27,7 @@ public class Mesh
 	
 	public Mesh(int vertices, int vertexSize, int indices)
 	{
-		this.vertexBuffer = ByteBuffer.allocateDirect(vertices * vertexSize).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		this.vertexBuffer = ByteBuffer.allocateDirect(vertices * vertexSize * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		this.indexBuffer = ByteBuffer.allocateDirect(indices * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
 		this.vertexBufferHandle = GL15.glGenBuffers();
 		this.indexBufferHandle = GL15.glGenBuffers();
@@ -105,6 +107,28 @@ public class Mesh
 	public int getRawSize()
 	{
 		return size;
+	}
+
+	/**
+	 * Relaxes the first three components of every vertex using the given relaxation value.
+	 * @param d Relaxation value
+	 */
+	public void relaxVertexBuffer(float d)
+	{
+		Vec3f vec = new Vec3f();
+		for (int i = 0; i < vertices; ++i)
+		{
+			int offset = i * vertexSize;
+			vec.x = vertexBuffer.get(offset + 0);
+			vec.y = vertexBuffer.get(offset + 1);
+			vec.z = vertexBuffer.get(offset + 2);
+			
+			vec.relax(d);
+			
+			vertexBuffer.put(offset + 0, vec.x);
+			vertexBuffer.put(offset + 1, vec.y);
+			vertexBuffer.put(offset + 2, vec.z);
+		}
 	}
 	
 }

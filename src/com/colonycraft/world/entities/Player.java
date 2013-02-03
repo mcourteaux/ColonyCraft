@@ -35,7 +35,7 @@ public class Player extends Entity
 	private static final float SQRT_2_INV = 1.0f / MathHelper.sqrt(2.0f);
 	private static final float MAX_SPEED = 7.0f;
 	private static final float RADIUS = 0.35f;
-	private static final float HEIGHT = 1.75f;
+	private static final float HEIGHT = 1.80f;
 	private static final float EYE_HEIGHT = 1.60f;
 	private static final float RAY_LENGTH = 5.0f;
 
@@ -65,7 +65,7 @@ public class Player extends Entity
 	{
 		super(world);
 		camera = new FirstPersonCamera();
-		camera.setNearAndFar(0.2f, world.getViewingDistance());
+		camera.setNearAndFar(0.18f, world.getViewingDistance());
 
 		transform = new Transform();
 		transform.origin.set(1.5f, 40, 1.5f);

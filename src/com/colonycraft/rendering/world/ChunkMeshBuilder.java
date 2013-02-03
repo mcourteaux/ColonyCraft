@@ -98,7 +98,7 @@ public class ChunkMeshBuilder
 		this.lightBuffer.buffer(chunk);
 
 		
-		mesh.setMesh(meshType, new Mesh(vertices, ChunkMeshRenderer.STRIDE * 4, 0));
+		mesh.setMesh(meshType, new Mesh(vertices, ChunkMeshRenderer.STRIDE, 0));
 		for (int i = 0; i < visibleBlocks.size(); ++i)
 		{
 			int index = visibleBlocks.get(i);
@@ -123,6 +123,7 @@ public class ChunkMeshBuilder
 		}
 
 		cmesh.getMesh(meshType).getVertexBuffer().flip();
+		cmesh.getMesh(meshType).relaxVertexBuffer(0.1f);
 		cmesh.getMesh(meshType).uploadVertexBuffer();
 		cmesh.getMesh(meshType).releaseRAMBuffers();
 	}

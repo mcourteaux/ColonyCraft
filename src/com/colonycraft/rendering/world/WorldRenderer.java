@@ -107,7 +107,7 @@ public class WorldRenderer
 		GL20.glUniform1f(shGrassFlicker, world.getFlicker());
 
 		/* Set the waving */
-		GL20.glUniform1f(shGrassWave, world.getTime() * 2.0f);
+		GL20.glUniform1f(shGrassWave, world.getTime() * 1.0f);
 
 		for (int i = 0; i < visibleChunks.size(); ++i)
 		{
