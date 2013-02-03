@@ -135,16 +135,12 @@ public class Chunk
 	{
 		meshDirty = true;
 		/*
-		 * If the chunk got empty, make sure to set it's aabb back to the full chunk,
-		 * so that when the first change occurs that makes the chunk visible again,
-		 * the world renderer will catch the empty chunk and allow it to rebuild it's
-		 * mesh
+		 * If the chunk content changed, set the aabb back to the full size, to
+		 * make sure the changed part will be in the aabb, so the WorldRenderer
+		 * can fix the mesh.
 		 */
-		
-		if (visibleBlocks.size() == 0)
-		{
-			restoreFullAABB();
-		}
+		restoreFullAABB();
+
 	}
 
 	public boolean isLightDirty()
@@ -255,7 +251,7 @@ public class Chunk
 	{
 		visibleContentAABB = aabb;
 	}
-	
+
 	public void rebuildMesh()
 	{
 		releaseMesh();
