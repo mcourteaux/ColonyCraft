@@ -33,6 +33,7 @@ public class PhysicsManager
 	private DynamicsWorld dynamicsWorld;
 	private ChunkShapeBuilderDistanceComparator csbdc;
 	private List<Chunk> physicalChunks;
+	private List<Chunk> emptyPhysicalChunks;
 	private List<ChunkShapeBuilder> enqueuedChunkShapeBuilders;
 	private ChunkShapeBuilder workingShapeBuilder;
 
@@ -44,6 +45,7 @@ public class PhysicsManager
 		this.csbdc = new ChunkShapeBuilderDistanceComparator();
 		this.physicalChunks = new FastArrayList<Chunk>();
 		this.chunksToRemove = new FastArrayList<Chunk>();
+		this.emptyPhysicalChunks = new FastArrayList<Chunk>();
 		this.enqueuedChunkShapeBuilders = new FastArrayList<ChunkShapeBuilder>();
 		createDynamicsWorld();
 	}
@@ -87,6 +89,7 @@ public class PhysicsManager
 			{
 				workingShapeBuilder = enqueuedChunkShapeBuilders.remove(0);
 				Thread th = new Thread(workingShapeBuilder);
+				th.setPriority(Thread.MIN_PRIORITY);
 				th.start();
 			}
 		}
@@ -99,18 +102,34 @@ public class PhysicsManager
 				updateChunk(c);
 			}
 		}
+
+		for (int i = 0; i < emptyPhysicalChunks.size(); ++i)
+		{
+			Chunk c = emptyPhysicalChunks.get(i);
+			if (c.isBodyDirty())
+			{
+				updateChunk(c);
+				emptyPhysicalChunks.remove(i);
+				--i;
+			}
+		}
 	}
 
 	public void removeChunk(Chunk chunk)
 	{
 		RigidBody b = chunk.getBody();
+		boolean removed;
+
 		if (b != null)
 		{
 			dynamicsWorld.removeRigidBody(b);
 			chunk.setBody(null);
 			b.destroy();
+			removed = physicalChunks.remove(chunk);
+		} else
+		{
+			removed = emptyPhysicalChunks.remove(chunk);
 		}
-		boolean removed = physicalChunks.remove(chunk);
 		if (!removed)
 		{
 			chunksToRemove.add(chunk);
@@ -130,6 +149,7 @@ public class PhysicsManager
 		csb.update = true;
 		enqueuedChunkShapeBuilders.add(0, csb);
 		chunk.setBodyClean();
+		System.out.println("Update chunk! " + chunk.getPos());
 	}
 
 	private void addChunk(Chunk chunk, CollisionShape shape, boolean update)
@@ -160,10 +180,15 @@ public class PhysicsManager
 			chunk.setBody(body);
 		} else
 		{
-			if (update && chunk.getBody() != null)
+			if (update)
 			{
-				dynamicsWorld.removeRigidBody(chunk.getBody());
+				if (chunk.getBody() != null)
+				{
+					dynamicsWorld.removeRigidBody(chunk.getBody());
+					physicalChunks.remove(chunk);
+				}
 			}
+			emptyPhysicalChunks.add(chunk);
 			chunk.setBody(null);
 		}
 	}
@@ -177,18 +202,17 @@ public class PhysicsManager
 	{
 		dynamicsWorld.addRigidBody(body);
 	}
-	
+
 	private void sortBuilders()
 	{
 		csbdc.setReference(world.getActivePlayer().getTransform().origin);
 		Collections.sort(enqueuedChunkShapeBuilders, csbdc);
 	}
-	
+
 	private static class ChunkShapeBuilderDistanceComparator implements Comparator<ChunkShapeBuilder>
 	{
-		
+
 		private ChunkDistanceComparator cdc = new ChunkDistanceComparator();
-		
 
 		public void setReference(Vector3f ref)
 		{
@@ -200,7 +224,7 @@ public class PhysicsManager
 		{
 			return cdc.compare(o1.getChunk(), o2.getChunk());
 		}
-		
+
 	}
 
 }

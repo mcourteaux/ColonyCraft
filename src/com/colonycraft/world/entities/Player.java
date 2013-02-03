@@ -138,9 +138,10 @@ public class Player extends Entity
 				buildTimeout = 0.1f;
 			}
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_F))
+		if (Keyboard.isKeyDown(Keyboard.KEY_F) && buildTimeout < 0.0f)
 		{
 			flying ^= true;
+			buildTimeout = 0.4f;
 		}
 		if (Keyboard.isKeyDown(Keyboard.KEY_L))
 		{

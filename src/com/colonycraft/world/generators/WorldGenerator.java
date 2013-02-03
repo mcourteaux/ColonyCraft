@@ -42,7 +42,7 @@ public class WorldGenerator
 		{
 			for (int z = 0; z < Chunk.BPC_1D; ++z)
 			{
-				hmap[x][z] = (int) (80.0f * fBm.noise((ax + x) * 0.00005f, (az + z) * 0.00005f));
+				hmap[x][z] = (int) (10.0f * fBm.noise((ax + x) * 0.00005f, (az + z) * 0.00005f));
 			}
 		}
 

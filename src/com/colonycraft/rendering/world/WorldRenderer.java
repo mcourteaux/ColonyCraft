@@ -17,21 +17,20 @@ public class WorldRenderer
 {
 
 	private World world;
-	
+
 	private Shader shChunk;
 	private int shChunkFogColor;
 	private int shChunkFog;
 	private int shChunkSun;
 	private int shChunkFlicker;
-	
+
 	private Shader shGrass;
 	private int shGrassWave;
 	private int shGrassFogColor;
 	private int shGrassFog;
 	private int shGrassSun;
 	private int shGrassFlicker;
-	
-	
+
 	private Vec3f fogColor;
 
 	public WorldRenderer(World world)
@@ -44,7 +43,7 @@ public class WorldRenderer
 		this.shChunkFogColor = shChunk.getUniform("fogColor");
 		this.shChunkSun = shChunk.getUniform("sun");
 		this.shChunkFlicker = shChunk.getUniform("flicker");
-		
+
 		this.shGrass = ShaderStorage.getShader("grass");
 		this.shGrassFog = shGrass.getUniform("fog");
 		this.shGrassFogColor = shGrass.getUniform("fogColor");
@@ -69,7 +68,7 @@ public class WorldRenderer
 		float s = world.getSunligth();
 		GL11.glClearColor(s * fogColor.x, s * fogColor.y, s * fogColor.z, 1.0f);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-		
+
 		/* State changes */
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glDepthFunc(GL11.GL_LEQUAL);
@@ -80,7 +79,7 @@ public class WorldRenderer
 		/* Set the fog color for the chunk shader */
 		GL20.glUniform2f(shChunkFog, world.getViewingDistance() * 0.8f, world.getViewingDistance());
 		GL20.glUniform4f(shChunkFogColor, s * fogColor.x, s * fogColor.y, s * fogColor.z, 1.0f);
-		
+
 		/* Set light */
 		GL20.glUniform1f(shChunkSun, s);
 		GL20.glUniform1f(shChunkFlicker, world.getFlicker());
@@ -96,31 +95,31 @@ public class WorldRenderer
 			}
 			ChunkMeshRenderer.renderChunkMesh(world, ch, ChunkMesh.MESH_OPAQUE);
 		}
-		
+
 		/* Render grass */
 		shGrass.useProgram();
 		/* Set the fog color for the grass shader */
 		GL20.glUniform2f(shGrassFog, world.getViewingDistance() * 0.8f, world.getViewingDistance());
 		GL20.glUniform4f(shGrassFogColor, s * fogColor.x, s * fogColor.y, s * fogColor.z, 1.0f);
-		
+
 		/* Set light */
 		GL20.glUniform1f(shGrassSun, s);
 		GL20.glUniform1f(shGrassFlicker, world.getFlicker());
-	
+
 		/* Set the waving */
 		GL20.glUniform1f(shGrassWave, world.getTime() * 2.0f);
-		
+
 		for (int i = 0; i < visibleChunks.size(); ++i)
 		{
 			Chunk ch = visibleChunks.get(i);
 			ChunkMeshRenderer.renderChunkMesh(world, ch, ChunkMesh.MESH_GRASS);
 		}
-		
+
 		Shader.useDefaultProgram();
 
 		/* Render the player */
 		world.getActivePlayer().render();
-		
+
 		if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 		{
 			renderDebugAABBs();
@@ -129,13 +128,21 @@ public class WorldRenderer
 
 	private void renderDebugAABBs()
 	{
-//		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-		List<Chunk> chunks = world.getPhysicsManager().getPhysicalChunks();
+		// GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+		GL11.glEnable(GL11.GL_BLEND);
+		List<Chunk> chunks = world.getLocalEnvironmentManager().getLocalChunks();
 		for (int i = 0; i < chunks.size(); ++i)
 		{
 			Chunk ch = chunks.get(i);
-			ch.getVisibleContentAABB().render();
+			if (ch.getBody() != null)
+			{
+				ch.getVisibleContentAABB().render(0.0f, 0.0f, 1.0f, 0.1f);
+			} else
+			{
+				ch.getVisibleContentAABB().render(1.0f, 0.0f, 0.0f, 0.1f);
+			}
 		}
+		GL11.glDisable(GL11.GL_BLEND);
 	}
 
 }

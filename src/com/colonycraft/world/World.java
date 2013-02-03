@@ -211,6 +211,8 @@ public class World implements EnvironmentManagerCallbacks
 		updateVisibilityAndPhysics(x, y, z);
 
 		Chunk ch = getChunkContaining(x, y, z, false);
+		ch.setMeshDirty();
+		ch.setBodyDirty();
 
 		/* If the chunk isn't loading, then update the light */
 		if (!ch.isLoading())

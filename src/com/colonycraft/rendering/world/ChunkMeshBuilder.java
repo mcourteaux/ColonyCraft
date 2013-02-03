@@ -38,12 +38,12 @@ public class ChunkMeshBuilder
 		this.chunk = chunk;
 		this.cmesh = mesh;
 		this.cdata = chunk.getData();
-		this.lightBuffer.buffer(chunk);
 
 		IntList visibleBlocks = chunk.getVisibleBlocks();
 		Vec3i vectori = new Vec3i();
 		Vec3f vectorf = new Vec3f();
-		AABB aabb = null;
+		AABB meshAABB = null;
+		AABB fullAABB = null;
 		AABB blockAABB = new AABB(new Vec3f(), HALF_BLOCK);
 		int vertices = 0;
 		for (int i = 0; i < visibleBlocks.size(); ++i)
@@ -53,20 +53,50 @@ public class ChunkMeshBuilder
 			int data = cdata.getBlockData(index);
 			int type = ChunkData.getType(data);
 			int faceMask = ChunkData.getFaceMask(data);
-
+			
 			Block block = BlockManager.getBlock(type);
+			
+			ChunkData.posForBlock(index, vectori);
+			vectorf.set(vectori).add(chunk.getWorldPos()).add(HALF_BLOCK);
+			blockAABB.set(block.getAABB());
+			blockAABB.setPosition(blockAABB.getPosition().add(vectorf));
+			
+			if (fullAABB == null)
+			{
+				fullAABB = new AABB(blockAABB);
+			} else
+			{
+				fullAABB.include(blockAABB);
+			}
+			
 			if (block.getMesh() == meshType)
 			{
 				BlockShape brush = block.getShape();
 				vertices += brush.vertexCount(faceMask);
+				
+				
+				if (meshAABB == null)
+				{
+					meshAABB = new AABB(blockAABB);
+				} else
+				{
+					meshAABB.include(blockAABB);
+				}
 			}
 		}
+		
+		chunk.setContentAABBforMesh(meshAABB, meshType);
+		chunk.setVisibleContantAABB(fullAABB);
 		
 		if (vertices == 0)
 		{
 			chunk.setMeshClean();
 			return;
 		}
+		
+
+		this.lightBuffer.buffer(chunk);
+
 		
 		mesh.setMesh(meshType, new Mesh(vertices, ChunkMeshRenderer.STRIDE * 4, 0));
 		for (int i = 0; i < visibleBlocks.size(); ++i)
@@ -76,14 +106,7 @@ public class ChunkMeshBuilder
 
 			ChunkData.posForBlock(index, vectori);
 			vectorf.set(vectori).add(chunk.getWorldPos()).add(HALF_BLOCK);
-			blockAABB.setPosition(vectorf);
-			if (aabb == null)
-			{
-				aabb = new AABB(blockAABB);
-			} else
-			{
-				aabb.include(blockAABB);
-			}
+			
 
 			lightBuffer.setRef(vectori.x, vectori.y, vectori.z);
 
@@ -101,8 +124,6 @@ public class ChunkMeshBuilder
 
 		cmesh.getMesh(meshType).getVertexBuffer().flip();
 		cmesh.getMesh(meshType).uploadVertexBuffer();
-		chunk.setMeshClean();
-		chunk.setVisibleContantAABB(aabb);
 		cmesh.getMesh(meshType).releaseRAMBuffers();
 	}
 

@@ -1,8 +1,6 @@
 package com.colonycraft;
 
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Toolkit;
 import java.io.IOException;
 
 import org.lwjgl.LWJGLException;
@@ -15,6 +13,7 @@ import com.colonycraft.math.Vec2i;
 import com.colonycraft.rendering.Atlas;
 import com.colonycraft.rendering.GLFont;
 import com.colonycraft.rendering.ShaderStorage;
+import com.colonycraft.utilities.FileSystem;
 import com.colonycraft.world.World;
 
 public class ColonyCraft
@@ -28,38 +27,29 @@ public class ColonyCraft
 	private float step;
 	private int sleeptimeMillis;
 	private float averangeFramerate;
-	
+
 	private GLFont debugFont;
-	
+
+	private FileSystem fileSystem;
+	private Configuration configuration;
 	private World world;
-	
+
 	public void init()
 	{
+		fileSystem = new FileSystem();
+		configuration = new Configuration();
+
 		try
 		{
-			int w, h;
-			boolean fullscreen;
-			try
-			{
-				Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-				w = d.width;
-				h = d.height;
-				fullscreen = true;
-			} catch (Exception e)
-			{
-				w = 800;
-				h = 480;
-				fullscreen = false;
-			}
-			
-			setDisplayMode(w, h, fullscreen);
-			Display.setVSyncEnabled(false);
+			setDisplayMode(configuration.getWidth(), configuration.getHeight(), configuration.getFullscreen());
+			if (configuration.getVSync())
+				Display.setVSyncEnabled(true);
 			Display.create();
 		} catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-		
+
 		try
 		{
 			ShaderStorage.loadShader("chunk");
@@ -68,22 +58,21 @@ public class ColonyCraft
 		{
 			e.printStackTrace();
 		}
-		
-		framerateCap = 1000;
+
+		framerateCap = configuration.getFPS();
 		averangeFramerate = framerateCap;
 		frametimeMinMillis = (int) (1000 / framerateCap);
-		
+
 		debugFont = new GLFont(new Font("Courier New", Font.PLAIN, 12));
-		
+
 		loadTerrainAtlas();
 		world = new World();
-		
+
 		GL11.glEnable(GL11.GL_CULL_FACE);
-		
+
 		gameLoop();
 	}
-	
-	
+
 	private void loadTerrainAtlas()
 	{
 		try
@@ -111,11 +100,10 @@ public class ColonyCraft
 		{
 			frameStart = System.nanoTime();
 
-			
 			render();
 			update();
 			Display.update();
-			
+
 			frameTime = (int) (System.nanoTime() - frameStart);
 			sleeptimeMillis = Math.max(0, frametimeMinMillis - (frameTime / 1000000));
 			framerate = 1e9f / (frameTime + sleeptimeMillis * 1000000);
@@ -128,21 +116,21 @@ public class ColonyCraft
 			{
 			}
 		}
-		
+
 		TextureStorage.release();
 		Display.destroy();
 	}
-	
+
 	public void update()
 	{
 		world.update();
 	}
-	
+
 	public void render()
 	{
 
 		world.render();
-		
+
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -159,16 +147,18 @@ public class ColonyCraft
 
 	}
 
-	
 	/* Singleton */
 	private static ColonyCraft colonyCraft;
+
 	private ColonyCraft()
 	{
 	}
+
 	protected static void createInstance()
 	{
 		colonyCraft = new ColonyCraft();
 	}
+
 	public static ColonyCraft getIntance()
 	{
 		return colonyCraft;
@@ -179,11 +169,16 @@ public class ColonyCraft
 		return world;
 	}
 
+	public FileSystem getFS()
+	{
+		return fileSystem;
+	}
+
 	public float getStep()
 	{
 		return step;
 	}
-	
+
 	public void setDisplayMode(int width, int height, boolean fullscreen)
 	{
 		if ((Display.getDisplayMode().getWidth() == width) && (Display.getDisplayMode().getHeight() == height) && (Display.isFullscreen() == fullscreen))
